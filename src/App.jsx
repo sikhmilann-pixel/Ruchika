@@ -84,17 +84,6 @@ export default function App() {
                 transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                 className="relative z-10 max-w-2xl mx-auto flex flex-col items-center"
               >
-                {/* Personal Note Badge */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.25, duration: 0.8 }}
-                  className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/70 border border-[#E85D7A]/40 text-[#4A1527] text-[11px] sm:text-xs font-medium tracking-[0.2em] uppercase mb-6 sm:mb-8 shadow-sm backdrop-blur-md"
-                >
-                  <span className="text-[#E85D7A] text-xs">♥</span>
-                  <span>A Personal Note</span>
-                </motion.div>
-
                 {/* Main Heading */}
                 <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-[#4A1527] tracking-tight leading-[1.18] mb-6 sm:mb-8">
                   Ruchika, I Owe You <br className="hidden sm:inline" />
@@ -161,11 +150,7 @@ export default function App() {
                   transition={{ duration: 1 }}
                   className="w-full"
                 >
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-4">
-                    Accountability
-                  </span>
-                  
-                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-10 tracking-tight">
+                  <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-10 tracking-tight">
                     I Remember What I Said.
                   </h2>
 
@@ -294,11 +279,7 @@ export default function App() {
                   transition={{ duration: 1 }}
                   className="w-full"
                 >
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#F3A6B9]/80 font-medium block mb-3 sm:mb-4">
-                    Zero Justifications
-                  </span>
-
-                  <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light text-[#FFF4F6] mb-8 sm:mb-14 tracking-tight leading-snug">
+                  <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light text-[#FFF4F6] mb-8 sm:mb-12 tracking-tight leading-snug">
                     I Don't Want To Hide Behind <br className="hidden sm:inline" />
                     <span className="italic text-[#F3A6B9]">‘I Was Angry.’</span>
                   </h2>
@@ -368,10 +349,6 @@ export default function App() {
                   transition={{ duration: 1 }}
                   className="w-full"
                 >
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-3 sm:mb-4">
-                    Perspective
-                  </span>
-
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-12 tracking-tight">
                     Please Remember This.
                   </h2>
@@ -487,10 +464,6 @@ export default function App() {
                   transition={{ duration: 1 }}
                   className="w-full"
                 >
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-3 sm:mb-4">
-                    Commitment
-                  </span>
-
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-12 tracking-tight">
                     What I Can Promise
                   </h2>
@@ -576,10 +549,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-2 sm:mb-3">
-                    Emotional Safety
-                  </span>
-
                   <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-6 sm:mb-10 tracking-tight">
                     I Want You To Feel Safe With Me.
                   </h2>
@@ -647,9 +616,6 @@ export default function App() {
                   className="w-full"
                 >
                   <div className="text-center mb-6 sm:mb-10">
-                    <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-2 sm:mb-3">
-                      A Letter
-                    </span>
                     <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] tracking-tight">
                       From Me, To You.
                     </h2>
@@ -727,10 +693,6 @@ export default function App() {
                   transition={{ duration: 1 }}
                   className="w-full flex flex-col items-center"
                 >
-                  <span className="text-xs uppercase tracking-[0.25em] text-[#C76A82] font-medium block mb-4">
-                    Just One Last Thing
-                  </span>
-
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 tracking-tight">
                     Ruchika, You Matter To Me.
                   </h2>
