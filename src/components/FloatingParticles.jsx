@@ -6,7 +6,7 @@ export default function FloatingParticles() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
@@ -16,11 +16,11 @@ export default function FloatingParticles() {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     const isMobile = window.innerWidth < 768;
 
-    // Helper to draw a delicate rose petal
+    // Helper to draw a delicate rose petal without CPU shadowBlur
     const drawPetal = (ctx, x, y, size, angle, opacity) => {
       ctx.save();
       ctx.translate(x, y);
@@ -33,12 +33,10 @@ export default function FloatingParticles() {
       
       const gradient = ctx.createLinearGradient(0, -size, 0, size);
       gradient.addColorStop(0, `rgba(255, 220, 230, ${opacity * 0.9})`);
-      gradient.addColorStop(0.6, `rgba(243, 166, 185, ${opacity * 0.75})`);
-      gradient.addColorStop(1, `rgba(232, 93, 122, ${opacity * 0.4})`);
+      gradient.addColorStop(0.6, `rgba(243, 166, 185, ${opacity * 0.8})`);
+      gradient.addColorStop(1, `rgba(232, 93, 122, ${opacity * 0.5})`);
       
       ctx.fillStyle = gradient;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = `rgba(232, 93, 122, ${opacity * 0.3})`;
       ctx.fill();
       ctx.restore();
     };
@@ -50,14 +48,10 @@ export default function FloatingParticles() {
       ctx.beginPath();
       const topCurveHeight = size * 0.3;
       ctx.moveTo(0, topCurveHeight);
-      // top left curve
       ctx.bezierCurveTo(-size / 2, -topCurveHeight, -size, topCurveHeight / 3, 0, size);
-      // top right curve
       ctx.bezierCurveTo(size, topCurveHeight / 3, size / 2, -topCurveHeight, 0, topCurveHeight);
       ctx.closePath();
-      ctx.fillStyle = `rgba(232, 93, 122, ${opacity})`;
-      ctx.shadowBlur = 4;
-      ctx.shadowColor = `rgba(243, 166, 185, ${opacity * 0.5})`;
+      ctx.fillStyle = `rgba(232, 93, 122, ${opacity * 0.85})`;
       ctx.fill();
       ctx.restore();
     };
@@ -103,7 +97,7 @@ export default function FloatingParticles() {
     }));
 
     // 3. Small glowing particles
-    const particleCount = isMobile ? 18 : 34;
+    const particleCount = isMobile ? 16 : 30;
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
@@ -152,8 +146,6 @@ export default function FloatingParticles() {
         ctx.fillStyle = p.isWhite
           ? `rgba(255, 255, 255, ${p.opacity})`
           : `rgba(243, 166, 185, ${p.opacity})`;
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = `rgba(255, 240, 245, ${p.opacity * 0.7})`;
         ctx.fill();
       });
 
@@ -193,11 +185,15 @@ export default function FloatingParticles() {
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    // Defer animation frame start until main thread is idle
+    const startTimeout = setTimeout(() => {
+      animationFrameId = requestAnimationFrame(render);
+    }, 60);
 
     return () => {
+      clearTimeout(startTimeout);
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
@@ -205,7 +201,7 @@ export default function FloatingParticles() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0 opacity-90"
-      style={{ willChange: 'transform' }}
+      style={{ willChange: 'contents' }}
     />
   );
 }
