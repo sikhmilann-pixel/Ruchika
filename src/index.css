@@ -89,3 +89,26 @@
   background: radial-gradient(circle, rgba(243, 166, 185, 0.55) 0%, rgba(252, 231, 236, 0) 70%);
   filter: blur(40px);
 }
+
+/* High-Performance GPU Scroll Reveal (Zero-blocking) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Instant Hero Entrance */
+@keyframes heroEntrance {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.hero-enter {
+  animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

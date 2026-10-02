@@ -20,16 +20,21 @@
     </noscript>
 
     <style>
-      /* Critical instantaneous styling so page is 100% visible on initial frame */
+      /* Critical Instantaneous Styling */
       html, body {
         background-color: #FCE7EC;
         margin: 0;
         padding: 0;
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         color: #4A1527;
+        scroll-behavior: smooth;
+        -webkit-tap-highlight-color: transparent;
       }
       .font-serif {
         font-family: 'Cormorant Garamond', Georgia, Cambria, 'Times New Roman', serif;
+      }
+      .font-script {
+        font-family: 'Caveat', cursive, Georgia, serif;
       }
       .btn-deep-rose {
         background: linear-gradient(135deg, #B4234D 0%, #D63D65 100%);
@@ -39,41 +44,727 @@
         transition: all 0.35s ease;
         text-decoration: none;
       }
+      .btn-deep-rose:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 18px 45px rgba(180, 35, 77, 0.32);
+      }
     </style>
   </head>
   <body class="bg-[#FCE7EC] text-[#4A1527] selection:bg-[#F3A6B9] selection:text-[#360E1B] antialiased overflow-x-hidden font-sans">
-    <div id="root">
-      <div class="relative min-h-screen bg-gradient-to-br from-[#FFF4F6] via-[#FCE7EC] to-[#FAD1DC] text-[#4A1527] font-sans antialiased">
-        <main class="relative z-10 overflow-hidden">
-          <section id="landing" class="relative min-h-screen flex flex-col items-center justify-center text-center px-5 sm:px-6 py-14 sm:py-24 overflow-hidden">
-            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div class="w-[340px] sm:w-[620px] h-[340px] sm:h-[620px] rounded-full bg-gradient-to-tr from-[#FAD1DC]/80 via-[#FFF4F6]/90 to-[#F3A6B9]/40 blur-3xl opacity-80"></div>
+    
+    <!-- Reading Progress Bar -->
+    <div
+      id="scroll-progress"
+      class="fixed top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#F3A6B9] via-[#E85D7A] to-[#B4234D] z-50 origin-left scale-x-0 transition-transform duration-75"
+    ></div>
+
+    <!-- Romantic Background Particles Canvas -->
+    <canvas id="particles-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-90"></canvas>
+
+    <!-- Audio Player Button -->
+    <div class="fixed top-5 right-5 z-50">
+      <button
+        id="btn-audio-toggle"
+        aria-label="Play ambient music"
+        class="group flex items-center gap-2.5 px-4 py-2 rounded-full border transition-all duration-300 backdrop-blur-md text-xs tracking-wider uppercase font-medium shadow-xs bg-white/65 text-[#8E5365] border-[rgba(180,35,77,0.15)] hover:border-[#E85D7A]/40 hover:bg-white/85 hover:text-[#4A1527] cursor-pointer"
+      >
+        <span id="audio-ping" class="relative hidden h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F3A6B9] opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#F3A6B9]"></span>
+        </span>
+        <svg id="audio-icon-muted" class="w-3.5 h-3.5 text-[#8E5365] group-hover:text-[#4A1527] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+        </svg>
+        <svg id="audio-icon-playing" class="w-3.5 h-3.5 hidden text-[#FFF4F6] animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+        </svg>
+        <span id="audio-text" class="hidden sm:inline font-sans text-[11px] transition-colors">Soft Music (Optional)</span>
+        <span class="sm:hidden font-sans text-[10px]">Music</span>
+      </button>
+    </div>
+
+    <!-- Main Content Container -->
+    <div id="main-content" class="relative z-10 overflow-hidden">
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 1 — HERO LANDING -->
+      <!-- ========================================================================= -->
+      <section id="landing" class="relative min-h-screen flex flex-col items-center justify-center text-center px-5 sm:px-6 py-14 sm:py-24 overflow-hidden">
+        <!-- Soft ambient background radial glows -->
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div class="w-[340px] sm:w-[620px] h-[340px] sm:h-[620px] rounded-full bg-gradient-to-tr from-[#FAD1DC]/80 via-[#FFF4F6]/90 to-[#F3A6B9]/40 blur-3xl opacity-80"></div>
+          <div class="absolute w-[500px] sm:w-[780px] h-[500px] sm:h-[780px] rounded-full border border-[#E85D7A]/10 -rotate-12 pointer-events-none"></div>
+          <div class="absolute w-[360px] sm:w-[600px] h-[360px] sm:h-[600px] rounded-full border border-[#F3A6B9]/15 rotate-45 pointer-events-none"></div>
+        </div>
+
+        <div class="relative z-10 max-w-2xl mx-auto flex flex-col items-center hero-enter">
+          <!-- Main Heading -->
+          <h1 class="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-[#4A1527] tracking-tight leading-[1.18] mb-6 sm:mb-8">
+            Ruchika, I Owe You <br class="hidden sm:inline" />
+            <span class="italic font-normal font-serif text-[#B4234D]">A Real Apology.</span>
+          </h1>
+
+          <!-- Supporting Text -->
+          <div class="space-y-1.5 sm:space-y-2 mb-8 sm:mb-12">
+            <p class="font-serif text-base sm:text-xl text-[#8E5365] italic tracking-wide">
+              Not an excuse.
+            </p>
+            <p class="font-serif text-base sm:text-xl text-[#8E5365] italic tracking-wide">
+              Not a justification.
+            </p>
+            <p class="font-sans text-xs sm:text-base font-semibold text-[#7B2943] uppercase tracking-[0.18em] pt-0.5 sm:pt-1">
+              Just an apology.
+            </p>
+          </div>
+
+          <!-- Main CTA Button -->
+          <a href="#remember" class="btn-deep-rose group relative inline-flex items-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full text-xs sm:text-base font-medium tracking-wide cursor-pointer text-white no-underline">
+            <span>Read What I Couldn't Say Properly</span>
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90 group-hover:translate-y-0.5 transition-transform duration-300 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-xs tracking-widest uppercase text-[#C76A82]">
+          <span class="text-[9px] sm:text-[10px] font-medium tracking-[0.2em]">Scroll gently</span>
+          <div class="w-3.5 sm:w-4 h-6 sm:h-7 rounded-full border border-[#E85D7A]/40 flex items-start justify-center p-1">
+            <div class="w-1 h-1 rounded-full bg-[#B4234D] animate-bounce"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 2 — “I Know What Hurt You” -->
+      <!-- ========================================================================= -->
+      <section id="remember" class="relative py-14 sm:py-24 px-5 sm:px-6 bg-[#FFF7F8] flex flex-col items-center text-center">
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center">
+          <!-- Section Divider -->
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-10 tracking-tight">
+              I Remember What I Said.
+            </h2>
+
+            <div class="glass-card-pink rounded-3xl p-8 sm:p-12 space-y-6 text-[#4A1527] text-base sm:text-lg leading-relaxed text-left sm:text-center">
+              <p class="font-serif italic text-lg sm:text-xl text-[#B4234D] font-medium">
+                “I said something about your appearance that I should never have said to you.”
+              </p>
+              
+              <div class="w-12 h-[1px] bg-[#E85D7A]/30 mx-auto my-4"></div>
+
+              <p class="text-sm sm:text-base text-[#8E5365] leading-relaxed">
+                I said it in anger, but being angry doesn't make those words okay.
+              </p>
+
+              <p class="text-sm sm:text-base text-[#8E5365] leading-relaxed">
+                I understand why they hurt you.<br />
+                And I understand why you remembered them.
+              </p>
             </div>
-            <div class="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
-              <h1 class="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-[#4A1527] tracking-tight leading-[1.18] mb-6 sm:mb-8">
-                Ruchika, I Owe You <br class="hidden sm:inline" />
-                <span class="italic font-normal font-serif text-[#B4234D]">A Real Apology.</span>
-              </h1>
-              <div class="space-y-1.5 sm:space-y-2 mb-8 sm:mb-12">
-                <p class="font-serif text-base sm:text-xl text-[#8E5365] italic tracking-wide">
-                  Not an excuse.
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 3 — “I'M SORRY” -->
+      <!-- ========================================================================= -->
+      <section id="sorry" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-[#FCE7EC] flex flex-col items-center text-center">
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <div class="inline-block mb-2 sm:mb-3">
+              <svg class="w-5 h-5 text-[#E85D7A] fill-[#FAD1DC] mx-auto" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+            </div>
+
+            <h2 class="font-serif text-3xl sm:text-5xl md:text-6xl font-normal text-[#4A1527] mb-8 sm:mb-12 tracking-tight">
+              I’m Sorry, Ruchika.
+            </h2>
+
+            <div class="space-y-4 sm:space-y-6 max-w-2xl mx-auto text-[#4A1527] text-base sm:text-lg leading-relaxed font-serif">
+              <div class="p-4 sm:p-5 rounded-2xl bg-white/60 border border-[rgba(180,35,77,0.10)] backdrop-blur-md shadow-xs">
+                I’m sorry for making you feel bad about yourself.
+              </div>
+
+              <div class="p-4 sm:p-5 rounded-2xl bg-white/60 border border-[rgba(180,35,77,0.10)] backdrop-blur-md shadow-xs">
+                I’m sorry for using words that could make you question how I see you.
+              </div>
+
+              <div class="p-4 sm:p-5 rounded-2xl bg-white/60 border border-[rgba(180,35,77,0.10)] backdrop-blur-md shadow-xs">
+                I’m sorry that my anger came out as something hurtful.
+              </div>
+
+              <div class="p-4 sm:p-5 rounded-2xl bg-white/60 border border-[rgba(180,35,77,0.10)] backdrop-blur-md shadow-xs">
+                And I’m sorry that a few careless words made you feel like you weren't valued.
+              </div>
+            </div>
+
+            <div class="mt-8 sm:mt-12 inline-block px-7 py-3 sm:px-8 sm:py-4 rounded-full bg-white/65 border border-[#E85D7A]/30 shadow-xs backdrop-blur-md">
+              <p class="font-serif italic text-lg sm:text-2xl text-[#B4234D] font-medium tracking-wide">
+                “You didn't deserve that.”
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 4 — NO EXCUSES (Dark Rose Velvet Section) -->
+      <!-- ========================================================================= -->
+      <section id="no-excuses" class="relative py-14 sm:py-24 px-5 sm:px-6 bg-[#4A1527] text-[#FFF4F6] overflow-hidden shadow-2xl">
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[450px] h-[450px] bg-[#E85D7A]/20 rounded-full blur-[130px]"></div>
+          <div class="absolute bottom-10 right-10 w-[300px] h-[300px] bg-[#B4234D]/25 rounded-full blur-[100px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-40">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#F3A6B9]"></div>
+            <span class="text-xs text-[#F3A6B9]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#F3A6B9]"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-light text-[#FFF4F6] mb-8 sm:mb-12 tracking-tight leading-snug">
+              I Don't Want To Hide Behind <br class="hidden sm:inline" />
+              <span class="italic text-[#F3A6B9]">‘I Was Angry.’</span>
+            </h2>
+
+            <div class="glass-card-darkrose rounded-3xl p-6 sm:p-14 space-y-6 sm:space-y-8 text-left max-w-2xl mx-auto">
+              <div class="space-y-1.5 sm:space-y-2 border-l-2 border-[#E85D7A]/70 pl-4 sm:pl-5">
+                <p class="text-base sm:text-xl font-serif text-[#FFF4F6]/95">
+                  I was angry.
                 </p>
-                <p class="font-serif text-base sm:text-xl text-[#8E5365] italic tracking-wide">
-                  Not a justification.
+                <p class="text-xs sm:text-base text-[#FAD1DC]/80">
+                  That explains why I said it.
                 </p>
-                <p class="font-sans text-xs sm:text-base font-semibold text-[#7B2943] uppercase tracking-[0.18em] pt-0.5 sm:pt-1">
-                  Just an apology.
+                <p class="text-sm sm:text-lg font-medium text-[#F3A6B9] pt-1">
+                  It does NOT excuse what I said.
                 </p>
               </div>
-              <a href="#remember" class="btn-deep-rose group relative inline-flex items-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full text-xs sm:text-base font-medium tracking-wide cursor-pointer text-white no-underline">
-                <span>Read What I Couldn't Say Properly</span>
-                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </a>
+
+              <div class="w-full h-[1px] bg-white/10"></div>
+
+              <div class="space-y-2.5 sm:space-y-3 text-xs sm:text-base text-[#FFF4F6]/85 leading-relaxed">
+                <p>I should have controlled myself.</p>
+                <p>I should have chosen silence instead of hurting you.</p>
+              </div>
+
+              <div class="pt-2 text-center">
+                <span class="inline-block px-6 py-2 sm:px-7 sm:py-2.5 rounded-full bg-white/10 border border-white/20 text-[#FFF4F6] font-serif text-base sm:text-lg tracking-wide italic">
+                  That's on me.
+                </span>
+              </div>
             </div>
-          </section>
-        </main>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 5 — WHAT I WANT YOU TO KNOW -->
+      <!-- ========================================================================= -->
+      <section id="remember-this" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-[#FFF1F4] flex flex-col items-center text-center">
+        <div class="max-w-4xl mx-auto w-full flex flex-col items-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-12 tracking-tight">
+              Please Remember This.
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-left">
+              <!-- Card 1 -->
+              <div class="glass-card-pink p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] mb-4 sm:mb-5 border border-[#E85D7A]/20">
+                    <svg class="w-4 h-4 text-[#E85D7A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                  </div>
+                  <h3 class="font-serif text-lg sm:text-2xl font-medium text-[#4A1527] mb-2">
+                    You Are Valued
+                  </h3>
+                  <p class="text-xs sm:text-base text-[#8E5365] leading-relaxed">
+                    One angry sentence doesn't define how I should have treated you.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="glass-card-pink p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] mb-4 sm:mb-5 border border-[#E85D7A]/20">
+                    <svg class="w-4 h-4 text-[#E85D7A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+                      <line x1="16" y1="8" x2="2" y2="22" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <h3 class="font-serif text-lg sm:text-2xl font-medium text-[#4A1527] mb-2">
+                    You Are Respected
+                  </h3>
+                  <p class="text-xs sm:text-base text-[#8E5365] leading-relaxed">
+                    Your feelings are valid, even if I don't always understand them immediately.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="glass-card-pink p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] mb-4 sm:mb-5 border border-[#E85D7A]/20">
+                    <svg class="w-4 h-4 text-[#E85D7A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="3" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a4 4 0 0 0-4 4c0 2 2 3 4 5 2-2 4-3 4-5a4 4 0 0 0-4-4z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a4 4 0 0 0 4-4c0-2-2-3-4-5-2 2-4 3-4 5a4 4 0 0 0 4 4z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2 12a4 4 0 0 0 4 4c2 0 3-2 5-4-2-2-3-4-5-4a4 4 0 0 0-4 4z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M22 12a4 4 0 0 0-4-4c-2 0-3 2-5 4 2 2 3 4 5 4a4 4 0 0 0 4-4z" />
+                    </svg>
+                  </div>
+                  <h3 class="font-serif text-lg sm:text-2xl font-medium text-[#4A1527] mb-2">
+                    You Are Safe To Be Yourself
+                  </h3>
+                  <p class="text-xs sm:text-base text-[#8E5365] leading-relaxed">
+                    You should never feel like you have to change your appearance or yourself to deserve respect.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="glass-card-pink p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] mb-4 sm:mb-5 border border-[#E85D7A]/20">
+                    <svg class="w-4 h-4 text-[#E85D7A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <h3 class="font-serif text-lg sm:text-2xl font-medium text-[#4A1527] mb-2">
+                    Your Space Is Yours
+                  </h3>
+                  <p class="text-xs sm:text-base text-[#8E5365] leading-relaxed">
+                    I won't force you to talk, meet, or forgive me before you're ready.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 6 — A PROMISE -->
+      <!-- ========================================================================= -->
+      <section id="promise" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-gradient-to-b from-[#FFF1F4] via-[#FAD1DC]/50 to-[#FFF4F6] flex flex-col items-center text-center overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div class="w-[300px] sm:w-[460px] h-[300px] sm:h-[460px] rounded-full bg-[#E85D7A]/10 blur-3xl pointer-events-none"></div>
+        </div>
+
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 sm:mb-12 tracking-tight">
+              What I Can Promise
+            </h2>
+
+            <div class="glass-card-pink p-6 sm:p-14 relative overflow-hidden text-left bg-white/75">
+              <p class="font-serif italic text-base sm:text-xl text-[#4A1527] mb-5 sm:mb-6 leading-relaxed">
+                “I can't promise that we'll never disagree.
+                <br />
+                But I can promise to work on how I handle those disagreements.”
+              </p>
+
+              <div class="space-y-3 sm:space-y-4 my-6 sm:my-8 text-xs sm:text-base text-[#4A1527]">
+                <div class="flex items-start gap-3 sm:gap-3.5">
+                  <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] shrink-0 mt-0.5 border border-[#E85D7A]/30">
+                    <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  </div>
+                  <span class="text-[#8E5365]">I can pause before speaking.</span>
+                </div>
+
+                <div class="flex items-start gap-3 sm:gap-3.5">
+                  <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] shrink-0 mt-0.5 border border-[#E85D7A]/30">
+                    <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  </div>
+                  <span class="text-[#8E5365]">I can walk away when I'm too angry.</span>
+                </div>
+
+                <div class="flex items-start gap-3 sm:gap-3.5">
+                  <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] shrink-0 mt-0.5 border border-[#E85D7A]/30">
+                    <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  </div>
+                  <span class="text-[#8E5365]">I can communicate instead of attacking.</span>
+                </div>
+
+                <div class="flex items-start gap-3 sm:gap-3.5">
+                  <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#FCE7EC] flex items-center justify-center text-[#E85D7A] shrink-0 mt-0.5 border border-[#E85D7A]/30">
+                    <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  </div>
+                  <span class="font-medium text-[#4A1527]">
+                    And I can learn to never use your insecurities or appearance as a weapon during an argument.
+                  </span>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-[#E85D7A]/15 text-center sm:text-left">
+                <p class="font-serif italic text-base sm:text-xl text-[#B4234D] font-medium">
+                  You deserve that respect.
+                </p>
+              </div>
+
+              <!-- Animated glowing line -->
+              <div class="h-[2px] w-full bg-gradient-to-r from-transparent via-[#E85D7A] to-transparent mt-6 sm:mt-8 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 7 — SECURITY / EMOTIONAL SAFETY -->
+      <!-- ========================================================================= -->
+      <section id="safety" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-[#FCE7EC] flex flex-col items-center text-center">
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <div class="relative w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#E85D7A]/30 to-[#FAD1DC] rotate-6"></div>
+              <div class="absolute inset-0 rounded-2xl bg-white/80 border border-[#E85D7A]/30 flex items-center justify-center shadow-sm">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-[#B4234D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+            </div>
+
+            <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-6 sm:mb-10 tracking-tight">
+              I Want You To Feel Safe With Me.
+            </h2>
+
+            <div class="glass-card-pink p-6 sm:p-12 space-y-5 sm:space-y-7 text-[#4A1527]">
+              <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] sm:text-sm font-medium tracking-widest uppercase text-[#B4234D]">
+                <span class="px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/70 border border-[#E85D7A]/20">Not controlled</span>
+                <span class="px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/70 border border-[#E85D7A]/20">Not pressured</span>
+                <span class="px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/70 border border-[#E85D7A]/20">Not judged</span>
+              </div>
+
+              <p class="font-serif text-xl sm:text-3xl font-medium text-[#4A1527] italic py-1 sm:py-2">
+                Safe.
+              </p>
+
+              <div class="space-y-2.5 sm:space-y-3.5 text-xs sm:text-base text-[#8E5365] text-left max-w-lg mx-auto">
+                <p class="flex items-center gap-2 sm:gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#E85D7A] shrink-0"></span>
+                  <span>Safe enough to tell me when something hurts.</span>
+                </p>
+                <p class="flex items-center gap-2 sm:gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#E85D7A] shrink-0"></span>
+                  <span>Safe enough to disagree with me.</span>
+                </p>
+                <p class="flex items-center gap-2 sm:gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#E85D7A] shrink-0"></span>
+                  <span>Safe enough to be angry with me.</span>
+                </p>
+                <p class="flex items-center gap-2 sm:gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#E85D7A] shrink-0"></span>
+                  <span>Safe enough to tell me when I've crossed a line.</span>
+                </p>
+                <p class="flex items-center gap-2 sm:gap-2.5 font-medium text-[#4A1527]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#B4234D] shrink-0"></span>
+                  <span>Safe enough to say ‘I need space.’</span>
+                </p>
+              </div>
+
+              <div class="pt-4 sm:pt-6 border-t border-[#E85D7A]/20">
+                <p class="font-serif text-sm sm:text-lg text-[#8E5365] italic">
+                  And if you need space right now,<br />
+                  <strong class="text-[#4A1527] font-semibold not-italic">I will respect that.</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 8 — PERSONAL MESSAGE (Letter Card) -->
+      <!-- ========================================================================= -->
+      <section id="letter" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-[#FFF7F8] flex flex-col items-center">
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full reveal-on-scroll">
+            <div class="text-center mb-6 sm:mb-10">
+              <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] tracking-tight">
+                From Me, To You.
+              </h2>
+            </div>
+
+            <!-- Physical Letter Card with Soft Blush / Paper Texture -->
+            <div class="letter-paper-pink relative p-6 sm:p-14">
+              <!-- Wax Seal Accent -->
+              <div class="absolute top-5 right-5 sm:top-8 sm:right-8">
+                <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-gradient-to-br from-[#B4234D] to-[#4A1527] flex items-center justify-center text-[#FAD1DC] shadow-md border border-[#F3A6B9]/40">
+                  <span class="font-serif italic font-bold text-sm sm:text-lg">S</span>
+                </div>
+              </div>
+
+              <div class="space-y-4 sm:space-y-6 text-[#4A1527] font-serif text-sm sm:text-lg leading-relaxed pt-2 sm:pt-4">
+                <p class="font-sans text-xs uppercase tracking-[0.2em] text-[#C76A82] font-semibold">
+                  Dear Ruchika,
+                </p>
+
+                <p>
+                  I know saying ‘sorry’ doesn't magically erase what I said.
+                </p>
+
+                <p>
+                  I wish I could take those words back before they reached you.
+                </p>
+
+                <p>
+                  But since I can't, the least I can do is accept that I hurt you and learn from it.
+                </p>
+
+                <p>
+                  You mean a lot to me, and that's exactly why I should have treated your feelings with more care.
+                </p>
+
+                <p class="italic text-[#B4234D]">
+                  I'm not asking you to forget.
+                </p>
+
+                <p>
+                  I'm asking you to believe that I'm genuinely sorry and that I want to become better at loving you — especially when I'm angry.
+                </p>
+
+                <div class="pt-6 sm:pt-8 flex flex-col items-end">
+                  <div class="w-20 sm:w-24 h-[1px] bg-[#E85D7A]/30 mb-2 sm:mb-3"></div>
+                  <p class="font-script text-2xl sm:text-4xl text-[#B4234D] font-normal">
+                    — Siddharth
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 9 — FINAL SECTION -->
+      <!-- ========================================================================= -->
+      <section id="final" class="relative py-12 sm:py-24 px-5 sm:px-6 bg-[#FAD1DC] flex flex-col items-center text-center overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div class="w-[320px] sm:w-[550px] h-[320px] sm:h-[550px] rounded-full bg-gradient-to-tr from-[#FFF4F6]/70 via-[#F3A6B9]/30 to-[#FFF0F3]/60 blur-3xl"></div>
+        </div>
+
+        <div class="max-w-3xl mx-auto w-full flex flex-col items-center relative z-10">
+          <div class="flex items-center justify-center gap-3 my-6 sm:my-8 opacity-60">
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/40"></div>
+            <span class="text-xs text-[#E85D7A]">❦</span>
+            <div class="h-[1px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/40"></div>
+          </div>
+
+          <div class="w-full flex flex-col items-center reveal-on-scroll">
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-[#4A1527] mb-8 tracking-tight">
+              Ruchika, You Matter To Me.
+            </h2>
+
+            <!-- Intro Subtext -->
+            <div class="space-y-4 mb-10 text-base sm:text-lg text-[#4A1527] max-w-xl mx-auto font-serif leading-relaxed">
+              <p class="italic text-[#8E5365]">
+                “I know one apology can't undo the moment that hurt you.”
+              </p>
+              <p class="text-sm sm:text-base text-[#4A1527]">
+                But I want you to know that I'm not taking your feelings lightly.
+              </p>
+              <div class="p-5 rounded-2xl bg-white/50 border border-[rgba(180,35,77,0.10)] backdrop-blur-md text-sm sm:text-base text-[#4A1527] space-y-1.5 shadow-xs font-sans">
+                <p>I care about you.</p>
+                <p>I care about how you feel.</p>
+                <p class="font-medium text-[#B4234D]">
+                  And I care about becoming someone who makes you feel respected, understood, and safe.
+                </p>
+              </div>
+            </div>
+
+            <!-- Small Divider Heart -->
+            <div class="flex items-center justify-center gap-3 my-4 opacity-70">
+              <div class="h-[1px] w-10 sm:w-16 bg-gradient-to-r from-transparent to-[#E85D7A]/50"></div>
+              <svg class="w-3.5 h-3.5 text-[#E85D7A] fill-[#F3A6B9]" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+              <div class="h-[1px] w-10 sm:w-16 bg-gradient-to-l from-transparent to-[#E85D7A]/50"></div>
+            </div>
+
+            <!-- Highlighted Message -->
+            <div class="glass-card-pink p-7 sm:p-9 my-8 text-left max-w-2xl mx-auto space-y-3.5 bg-white/70">
+              <p class="font-serif italic text-base sm:text-lg text-[#B4234D] font-medium">
+                “I don't want this website to convince you of anything.”
+              </p>
+              <p class="text-sm sm:text-base text-[#4A1527] leading-relaxed">
+                I just want it to remind you that behind all the mistakes, there is someone who genuinely cares about you and is willing to learn from them.
+              </p>
+              <div class="pt-2 border-t border-[#E85D7A]/15">
+                <p class="text-sm sm:text-base font-medium text-[#7B2943]">
+                  You deserve kindness from me — especially when things aren't easy.
+                </p>
+              </div>
+            </div>
+
+            <!-- FINAL PERSONAL MESSAGE (Letter Centerpiece) -->
+            <div class="letter-paper-pink relative p-8 sm:p-14 my-10 text-left w-full max-w-2xl mx-auto shadow-xl">
+              <!-- Wax Seal Accent -->
+              <div class="absolute top-6 right-6 sm:top-8 sm:right-8">
+                <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-gradient-to-br from-[#B4234D] to-[#4A1527] flex items-center justify-center text-[#FAD1DC] shadow-md border border-[#F3A6B9]/40">
+                  <span class="font-serif italic font-bold text-base sm:text-lg">S</span>
+                </div>
+              </div>
+
+              <div class="space-y-5 text-[#4A1527] font-serif text-base sm:text-lg leading-relaxed pt-2">
+                <p class="font-sans text-xs uppercase tracking-[0.2em] text-[#C76A82] font-semibold">
+                  Ruchika,
+                </p>
+
+                <p>
+                  I'm not asking you to forget what happened.
+                </p>
+
+                <p>
+                  I'm not asking you to suddenly be okay.
+                </p>
+
+                <p>
+                  I'm not asking you to give me an answer right now.
+                </p>
+
+                <p>
+                  I just wanted to put into words what I sometimes fail to say properly.
+                </p>
+
+                <p class="italic text-[#B4234D]">
+                  I'm genuinely sorry for hurting you.
+                </p>
+
+                <p>
+                  And if I ever get the chance to make things right, I don't want to do it with promises.
+                </p>
+
+                <p class="font-medium text-[#4A1527]">
+                  I want to do it with my actions.
+                </p>
+
+                <p class="pt-2 text-sm font-sans tracking-wide text-[#8E5365]">
+                  Take care of yourself.
+                </p>
+
+                <div class="pt-6 flex flex-col items-end">
+                  <div class="w-24 h-[1px] bg-[#E85D7A]/30 mb-3"></div>
+                  <p class="font-script text-3xl sm:text-4xl text-[#B4234D] font-normal">
+                    — Siddharth
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Closing Respect Text -->
+            <div class="space-y-2 my-8 text-center max-w-lg mx-auto">
+              <p class="font-serif text-lg sm:text-xl text-[#4A1527] font-medium">
+                Whatever you choose, I will respect it.
+              </p>
+              <p class="font-serif italic text-sm sm:text-base text-[#8E5365]">
+                Because caring about you also means respecting you.
+              </p>
+            </div>
+
+            <!-- Close Letter Button -->
+            <button
+              id="btn-close-letter"
+              class="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-white/85 border border-[#E85D7A]/40 text-[#B4234D] text-sm font-medium tracking-wider shadow-sm hover:border-[#E85D7A] hover:bg-white hover:scale-105 transition-all duration-300 backdrop-blur-md mt-4 cursor-pointer"
+            >
+              <span>With Care, Always</span>
+              <span class="text-[#E85D7A] group-hover:scale-110 transition-transform">♡</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="py-12 px-6 text-center text-[10px] sm:text-[11px] text-[#8E5365]/80 font-sans tracking-[0.25em] uppercase bg-[#FAD1DC]">
+        <p>For you, with all my sincerity.</p>
+      </footer>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TRANQUIL CLOSING VIEW (Appears on click) -->
+    <!-- ========================================================================= -->
+    <div
+      id="closed-screen"
+      class="fixed inset-0 z-50 hidden flex-col items-center justify-center px-6 bg-gradient-to-br from-[#FFF4F6] via-[#FCE7EC] to-[#FAD1DC] text-center"
+    >
+      <div class="absolute w-80 sm:w-96 h-80 sm:h-96 rounded-full bg-[#F3A6B9]/40 blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-md mx-auto space-y-8 animate-fadeIn">
+        <div class="w-12 h-12 rounded-full bg-white/80 border border-[#E85D7A]/40 flex items-center justify-center mx-auto text-[#E85D7A] shadow-xs backdrop-blur-md">
+          <svg class="w-5 h-5 fill-[#FAD1DC] text-[#E85D7A]" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          </svg>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="font-serif text-3xl sm:text-4xl text-[#4A1527] font-normal tracking-tight">
+            Take care, Ruchika.
+          </h2>
+          <p class="font-serif italic text-lg sm:text-xl text-[#8E5365]">
+            That's all I wanted to say.
+          </p>
+          <p class="font-script text-3xl sm:text-4xl text-[#B4234D] font-normal pt-2">
+            — Siddharth
+          </p>
+        </div>
+
+        <div class="pt-8">
+          <button
+            id="btn-reopen-letter"
+            class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#8E5365] hover:text-[#4A1527] transition-colors py-2 px-4 rounded-full hover:bg-white/60 backdrop-blur-xs cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Read Again</span>
+          </button>
+        </div>
       </div>
     </div>
-    <script type="module" src="/src/main.jsx"></script>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
