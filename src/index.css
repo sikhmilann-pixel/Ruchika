@@ -90,25 +90,30 @@
   filter: blur(40px);
 }
 
-/* High-Performance GPU Scroll Reveal (Zero-blocking) */
+/* High-Performance GPU Scroll Reveal (Zero-blocking, fail-safe visible default) */
 .reveal-on-scroll {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.is-revealed {
+.js-reveal .reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.js-reveal .reveal-on-scroll.is-revealed {
   opacity: 1;
   transform: translateY(0);
 }
 
 /* Instant Hero Entrance */
 @keyframes heroEntrance {
-  0% { opacity: 0; transform: translateY(16px); }
+  0% { opacity: 0.3; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .hero-enter {
-  animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: heroEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

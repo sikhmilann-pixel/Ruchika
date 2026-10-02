@@ -5,8 +5,10 @@ import './index.css';
 // =========================================================================
 function initScrollReveal() {
   const revealElements = document.querySelectorAll('.reveal-on-scroll');
-  
+  if (revealElements.length === 0) return;
+
   if ('IntersectionObserver' in window) {
+    document.documentElement.classList.add('js-reveal');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
