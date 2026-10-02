@@ -56,7 +56,6 @@ export default function App() {
           {!isClosed ? (
             <m.main
               key="content"
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 1.2, ease: "easeInOut" } }}
               className="relative z-10 overflow-hidden"
@@ -78,12 +77,7 @@ export default function App() {
                   <div className="absolute w-[360px] sm:w-[600px] h-[360px] sm:h-[600px] rounded-full border border-[#F3A6B9]/15 rotate-45 pointer-events-none" />
                 </div>
 
-                <m.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative z-10 max-w-2xl mx-auto flex flex-col items-center"
-                >
+                <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
                   {/* Main Heading */}
                   <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-[#4A1527] tracking-tight leading-[1.18] mb-6 sm:mb-8">
                     Ruchika, I Owe You <br className="hidden sm:inline" />
@@ -113,7 +107,7 @@ export default function App() {
                     <span>Read What I Couldn't Say Properly</span>
                     <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90 group-hover:translate-y-0.5 transition-transform duration-300" />
                   </m.button>
-                </m.div>
+                </div>
 
                 {/* Scroll Indicator */}
                 <m.div
